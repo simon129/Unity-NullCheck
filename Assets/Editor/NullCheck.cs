@@ -25,13 +25,19 @@ public class NullCheck : UnityEditor.AssetModificationProcessor
 				Type baseType;
 				if (IsUnitySerializable(f, out isArray, out baseType))
 				{
-					if (isArray)
+					object obj = f.GetValue(b);
+					if (obj == null || obj.Equals(null))
+					{
+						Debug.LogError(string.Format("{0}.{1} IS NULL", b.GetType().ToString(), f.Name));
+						EditorApplication.Beep();
+					}
+					else if (isArray)
 					{
 						int count = 0;
 						foreach (var a in (IEnumerable)f.GetValue(b))
 						{
 							count++;
-							if (a == null)
+							if (a == null || a.Equals(null))
 							{
 								Debug.LogError(string.Format("{0}.{1} ARRAY HAS NULL", b.GetType().ToString(), f.Name));
 								EditorApplication.Beep();
@@ -43,19 +49,9 @@ public class NullCheck : UnityEditor.AssetModificationProcessor
 							Debug.LogWarning(string.Format("{0}.{1} IS EMPTY ARRAY/LIST", b.GetType().ToString(), f.Name));
 						}
 					}
-					else
-					{
-						// something magic here
-						if (f.GetValue(b) == null || f.GetValue(b).Equals(null))
-						{
-							Debug.LogError(string.Format("{0}.{1} IS NULL", b.GetType().ToString(), f.Name));
-							EditorApplication.Beep();
-						}
-					}
 				}
 			}
 		}
-
 		return paths;
 	}
 
